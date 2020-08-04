@@ -1,0 +1,25 @@
+- hosts: localhost
+  connection: local
+
+  vars:
+    
+
+  tasks:
+    
+    - name: Check the version of CentOS
+      command: hostnamectl
+      register: os_check
+      ignore_errors: yes
+
+    - name: Fetch OpenLiteSpeed Role
+      git:
+        repo: https://ro:4QAxzYVfEC4Qqd9smmxW@pwslab.org/ansible/openlitespeed-playbook.git
+        dest: /root/.ansible/roles/pwslab.openlitespeed
+        version: master
+        force: yes
+
+    - name: Installing OpenLiteSpeed
+      include_role:
+          name: pwslab.openlitespeed
+
+    

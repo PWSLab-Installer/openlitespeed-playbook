@@ -1,0 +1,17 @@
+---
+
+__olsws_dependencies:
+  - gnupg
+
+__olsws_lsphp_packages:
+  - lsphp72
+  - lsphp72-common
+  - lsphp72-json
+  - lsphp72-mysql
+  - lsphp72-opcache
+  - lsphp72-igbinary
+  - lsphp72-memcached
+  - lsphp72-redis
+  - lsphp72-pspell
+  - lsphp72-recode
+  - lsphp72-tidy
