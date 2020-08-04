@@ -2,7 +2,7 @@
   connection: local
 
   vars:
-    
+    open_password: "123456"
 
   tasks:
     
@@ -18,8 +18,65 @@
         version: master
         force: yes
 
-    - name: Installing OpenLiteSpeed
-      include_role:
-          name: pwslab.openlitespeed
+    -   name: Installing OpenLiteSpeed
+        include_role:
+              name: pwslab.openlitespeed
+        when:
+            - not os_check.stdout | regex_search("Ubuntu")
 
+    -   name: Add the key - Ubuntu
+        shell: wget -qO - https://rpms.litespeedtech.com/debian/lst_repo.gpg | sudo apt-key add -
+        when:
+            - os_check.stdout | regex_search("Ubuntu")
+
+    -   name: Add the repo - Ubuntu 18
+        shell: add-apt-repository 'deb http://rpms.litespeedtech.com/debian/ bionic main'
+        when:
+            - os_check.stdout | regex_search("Ubuntu 18")
+
+    -   name: Add the repo - Ubuntu 20
+        shell: add-apt-repository 'deb http://rpms.litespeedtech.com/debian/ focal main'
+        when:
+            - os_check.stdout | regex_search("Ubuntu 20")
+
+    -   name: Install essential packages
+        apt:
+            name: "{{ item }}"
+            state: present
+        loop:
+            - openlitespeed
+            - lsphp73
+        when:
+            - os_check.stdout | regex_search("Ubuntu")
+
+    -   name: Install Pexcept
+        apt:
+            name: python3-pexpect
+            state: present
+        when:
+            - os_check.stdout | regex_search("Ubuntu 20")
+        
+    -   name: Install Pexcept
+        shell: pip install -I pexpect
+        when:
+            - os_check.stdout | regex_search("CentOS Linux 7")
+
+    -   name: Create the short link
+        shell: ln -sf /usr/local/lsws/lsphp73/bin/lsphp /usr/local/lsws/fcgi-bin/lsphp5
+        when:
+            - os_check.stdout | regex_search("Ubuntu")
     
+    -   name: Execute the script
+        expect:
+            command: bash /usr/local/lsws/admin/misc/admpass.sh
+            responses:
+                "User name": admin
+                "Password": "{{ open_password }}"
+                "Retype password": "{{ open_password }}"
+            echo: yes
+        register: prompt
+        # when:
+        #     - os_check.stdout | regex_search("Ubuntu")
+
+    # -   debug:
+    #         var: prompt.stdout_lines
